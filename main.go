@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"flippOneApi/internal/app"
-	"flippOneApi/internal/routes"
+	"github.com/joho/godotenv"
+	"github.com/leonardosantos2/GoUserServer/internal/app"
+	"github.com/leonardosantos2/GoUserServer/internal/routes"
 )
 
 func main() {
@@ -18,6 +19,11 @@ func main() {
 	app, err := app.NewApplication()
 	if err != nil {
 		panic(err)
+	}
+
+	err = godotenv.Load()
+	if err != nil {
+		fmt.Printf("Error loading .env file: %v\n", err)
 	}
 
 	router := routes.SetupRoutes(app)

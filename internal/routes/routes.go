@@ -2,16 +2,28 @@ package routes
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 
-	"flippOneApi/internal/app"
+	"github.com/leonardosantos2/GoUserServer/internal/app"
+	"github.com/leonardosantos2/GoUserServer/internal/middlewares"
 )
 
 func SetupRoutes(app *app.Application) *chi.Mux {
 	router := chi.NewRouter()
 
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3030"},
+		AllowedMethods:   []string{"GET"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
+
+	router.Use(corsMiddleware.Handler)
+
 	router.Get("/health", app.HealthCheck)
 
-	router.Get("/users/{id}", app.UserHandler.GetUser)
+	router.With(middleware.EnsureValidToken()).Get("/user", app.UserHandler.GetUser)
 
 	return router
 }

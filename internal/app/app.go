@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"flippOneApi/internal/api"
+	"github.com/leonardosantos2/GoUserServer/internal/api"
 )
 
 type Application struct {
