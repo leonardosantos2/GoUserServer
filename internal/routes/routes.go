@@ -12,7 +12,7 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	router := chi.NewRouter()
 
 	corsMiddleware := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3030"},
+		AllowedOrigins:   []string{"http://localhost:*"},
 		AllowedMethods:   []string{"GET"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -24,6 +24,7 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 	router.Get("/health", app.HealthCheck)
 
 	router.With(middleware.EnsureValidToken()).Get("/user", app.UserHandler.GetUser)
+	router.With(middleware.EnsureValidToken()).Get("/user/roles", app.UserHandler.GetUserRolesAndAppMetadata)
 
 	return router
 }

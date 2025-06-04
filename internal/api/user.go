@@ -6,22 +6,56 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
+	"github.com/leonardosantos2/GoUserServer/internal/middlewares"
 )
 
 type UserHandler struct{}
 
+type RolesAndMetadata struct {
+	Roles     []string `json:"/roles"`
+	Merchants []string `json:"/merchants"`
+}
+
 type UserInfo struct {
-	Sub           string   `json:"sub"`
-	Email         string   `json:"email"`
-	EmailVerified bool     `json:"email_verified"`
-	Name          string   `json:"name"`
-	Nickname      string   `json:"nickname"`
-	Picture       string   `json:"picture"`
-	Roles         []string `json:"/roles"`
+	RolesAndMetadata
+	Email         string `json:"email"`
+	EmailVerified bool   `json:"email_verified"`
+	Name          string `json:"name"`
+	Nickname      string `json:"nickname"`
+	Picture       string `json:"picture"`
+	Sub           string `json:"sub"`
 }
 
 func NewUserHandler() *UserHandler {
 	return &UserHandler{}
+}
+
+func (user *UserHandler) GetUserRolesAndAppMetadata(resWritter http.ResponseWriter, req *http.Request) {
+	// Get the claims from the request context
+	claims, ok := req.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+	if !ok {
+		http.Error(resWritter, "Invalid token claims", http.StatusUnauthorized)
+		return
+	}
+
+	// Cast the custom claims to our CustomClaims type
+	customClaims, ok := claims.CustomClaims.(*middleware.CustomClaims)
+	if !ok {
+		http.Error(resWritter, "Invalid custom claims", http.StatusUnauthorized)
+		return
+	}
+
+	// Create RolesAndMetadata from the claims
+	rolesAndMetadata := RolesAndMetadata{
+		Roles:     customClaims.Roles,
+		Merchants: customClaims.Merchants,
+	}
+
+	resWritter.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(resWritter).Encode(rolesAndMetadata)
 }
 
 func (user *UserHandler) GetUser(resWritter http.ResponseWriter, req *http.Request) {

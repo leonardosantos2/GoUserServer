@@ -17,7 +17,20 @@ import (
 
 // CustomClaims contains custom data we want from the token.
 type CustomClaims struct {
-	Scope string `json:"scope"`
+	Scope        string   `json:"scope"`
+	Sub          string   `json:"sub"`
+	Email        string   `json:"email"`
+	Name         string   `json:"name"`
+	Nickname     string   `json:"nickname"`
+	Picture      string   `json:"picture"`
+	Roles        []string `json:"/roles"`
+	Merchants    []string `json:"/merchants"`
+	UserMetadata struct {
+		// Add any user_metadata fields you need here
+	} `json:"user_metadata"`
+	AppMetadata struct {
+		// Add any app_metadata fields you need here
+	} `json:"app_metadata"`
 }
 
 // Validate does nothing for this example, but we need
